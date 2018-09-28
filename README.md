@@ -19,4 +19,4 @@ http://localhost/micro/api/user/delete?id=1 delete data user with id 1 - delete 
 this template already include register user and login keep in mind
 
 http://localhost/micro/api/user/login - login - post
-http://localhost/micro/api/user/register - login - register
+http://localhost/micro/api/user/register - register - post
