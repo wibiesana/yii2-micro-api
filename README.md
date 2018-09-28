@@ -10,8 +10,8 @@ yii2-micro-api does not create database you you have to create yourself
 
 at this point our API will provide the following URLs:
 
-http://localhost/micro-api/api/user/ - list all posts - get
-http://localhost/micro-api/api/user/create - create data - post
-http://localhost/micro-api/api/user/update?id=1 - create data - post
-http://localhost/micro/api/user/view?id=1 - view data with id 1 - get
-http://localhost/micro/api/user/delete?id=1 delete data with id 1 - delete
+http://localhost/micro-api/api/user/ - list all posts - get </b>
+http://localhost/micro-api/api/user/create - create data - post </b>
+http://localhost/micro-api/api/user/update?id=1 - create data - post </b>
+http://localhost/micro/api/user/view?id=1 - view data with id 1 - get </b>
+http://localhost/micro/api/user/delete?id=1 delete data with id 1 - delete </b>
