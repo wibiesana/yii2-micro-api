@@ -16,7 +16,7 @@ http://localhost/micro-api/api/user/update?id=1 - create data user- post <br>
 http://localhost/micro/api/user/view?id=1 - view data user with id 1 - get <br>
 http://localhost/micro/api/user/delete?id=1 delete data user with id 1 - delete <br>
 
-this template already include register user and login keep in mind
+this template already include register user and login
 
-http://localhost/micro/api/user/login - login - post
-http://localhost/micro/api/user/register - register - post
+http://localhost/micro-api/api/user/login - login - post
+http://localhost/micro-api/api/user/register - register - post
