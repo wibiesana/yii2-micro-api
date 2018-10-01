@@ -1,16 +1,24 @@
-  "name": "wibiesana/yii2-micro-api",
-    "description": "Yii 2 Micro Project Template for api",
-    "keywords": ["yii2", "framework", "basic", "project template"],
-    "type": "project",
-    "license": "BSD-3-Clause",
-    "minimum-stability": "dev",
 {
+  "name": "wibiesana/yii2-micro-api",
+
+  "description": "Yii 2 Micro Project Template for api",
+
+  "keywords": ["yii2", "framework", "basic", "project template"],
+
+  "type": "project",
+
+  "license": "BSD-3-Clause",
+
+  "minimum-stability": "dev",
+
   "require": {
     "yiisoft/yii2": "~2.0.0"
   },
+
   "repositories": [
     {
       "type": "composer",
+
       "url": "https://asset-packagist.org"
     }
   ]
