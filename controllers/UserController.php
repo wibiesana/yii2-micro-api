@@ -1,6 +1,6 @@
 <?php
 
-namespace micro\controllers;
+namespace app\controllers;
 
 use app\models\LoginForm;
 use app\models\PasswordForm;
@@ -58,7 +58,6 @@ class UserController extends ActiveController
             $response['hasErrors'] = $model->hasErrors();
             $response['errors'] = $model->getErrors();
             return $response;
-
         }
     }
     public function actionLogin()
