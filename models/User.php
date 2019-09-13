@@ -1,9 +1,8 @@
 <?php
 
-namespace micro\models;
+namespace app\models;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
@@ -27,6 +26,9 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
 {
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
+    const ROLE_USER = 10;
+    const ROLE_ADMIN = 20;
+
 
     public $rateLimit = 30;
 
@@ -43,13 +45,14 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
     public function fields()
     {
         return [
-            'username',
             'auth_key',
             'email',
+            'profile' => function ($model) {
+                return $model->profile;
+            },
         ];
-
     }
- 
+
     public function getRateLimit($request, $action)
     {
         return [$this->rateLimit, 60];
@@ -84,6 +87,8 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
         return [
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            ['role', 'default', 'value' => self::ROLE_USER],
+            ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]],
         ];
     }
 
@@ -145,8 +150,8 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
             return false;
         }
 
-        $timestamp = (int)substr($token, strrpos($token, '_') + 1);
-        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
+        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $expire = 3600;
         return $timestamp + $expire >= time();
     }
 
@@ -219,48 +224,24 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
         $this->password_reset_token = null;
     }
 
-    public function getIsExp()
+    /**
+     * Finds user by email
+     *
+     * @param string $email
+     * @return static|null
+     */
+    public static function findByEmail($email)
     {
-//        $createDate = strtotime(yii::$app->user->identity->created_at);
-//        $date = new \DateTime($createDate); // Y-m-d
-//        $date->add(new \DateInterval('P30D'));
-//        echo $date->format('Y-m-d') . "\n";
-//        $timeExp = $date->format('Y-m-d') . "\n";
-        $date = yii::$app->params['date'];
-        $timeExp = date($date);
-        $timeNow = date('Y-m-d');
-        if ($timeNow > $timeExp) {
-            return true;
-        } else {
-            return false;
-        }
+        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
     }
 
-    public function getStudent()
+    public function getPassword()
     {
-        return $this->hasOne(\micro\models\CbtStudent::className(), ['user_id' => 'id']);
+        return '';
     }
 
-    public function getTeacher()
+    public function getProfile()
     {
-        return $this->hasOne(\micro\models\CbtTeacher::className(), ['user_id' => 'id']);
-    }
-
-    public function getImage()
-    {
-        if (yii::$app->user->can('Student')) {
-            $data = yii::$app->user->identity->student->photo;
-            $path = Yii::getAlias('@web') . '/webAssets/images/profile/student/';
-        } else {
-            $data = yii::$app->user->identity->teacher->photo;
-            $path = Yii::getAlias('@web') . '/webAssets/images/profile/teacher/';
-        }
-
-        if (strlen($data) > 0) {
-            $image = $path . $data;
-        } else {
-            $image = Yii::getAlias('@web') . '/webAssets/images/profile/user.png';
-        }
-        return $image;
+        return $this->hasOne(\app\models\Profile::className(), ['user_id' => 'id']);
     }
 }
