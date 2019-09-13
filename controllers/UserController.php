@@ -57,7 +57,6 @@ class UserController extends ActiveController
             $model->getErrors();
             $response['hasErrors'] = $model->hasErrors();
             $response['errors'] = $model->getErrors();
-            //return = $model;
             return $response;
 
         }

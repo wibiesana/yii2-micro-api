@@ -10,17 +10,17 @@ return [
     'sourceLanguage' => 'en-US',
     'timeZone' => 'Asia/Jakarta',
     'aliases' => [
-        '@micro' => dirname(__DIR__),
+        '@app' => dirname(__DIR__),
     ],
     // this is where the application will find all controllers
-    'controllerNamespace' => 'micro\controllers',
+    'controllerNamespace' => 'app\controllers',
     'components' => [
         'db' => $db,
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'micro\models\User',
+            'identityClass' => 'app\models\User',
             'enableSession' => false,
             'loginUrl' => null,
             'enableAutoLogin' => false,
