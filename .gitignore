@@ -19,6 +19,11 @@ Thumbs.db
 /vendor
 /runtime
 
+# exclude assets
+assets/*
+!assets/.gitkeep 
+
+
 # composer itself is not needed
 composer.phar
 
