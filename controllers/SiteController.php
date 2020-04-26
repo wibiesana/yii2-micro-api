@@ -39,7 +39,19 @@ class SiteController extends ActiveController
 
         return $behaviors;
     }
+    protected function verbs()
+    {
 
+        return [
+            'index' => ['GET', 'HEAD', 'OPTIONS'], //instead of  'index' => ['GET', 'HEAD']
+            'login' => ['POST', 'OPTIONS'],
+            'register' => ['POST', 'OPTIONS'],
+            'reset-password' => ['POST', 'OPTIONS'],
+            'set-password' => ['POST', 'OPTIONS'],
+            'send-email-reset-password' => ['POST', 'OPTIONS'],
+        ];
+
+    }
     public function actions()
     {
         $actions = parent::actions();
@@ -121,9 +133,7 @@ class SiteController extends ActiveController
         $params = Yii::$app->request->post();
         $token = $params['token'];
         $password = $params['password'];
-        // validasi jika tidak kosong
         if (!empty($token) || empty($password)) {
-            // cari di database data email
             $user = User::findOne([
                 'status' => User::STATUS_ACTIVE,
                 'password_reset_token' => $token,
@@ -157,25 +167,23 @@ class SiteController extends ActiveController
         return $response;
     }
 
-    public function actionSetPassword()
+    public function actionChangePassword()
     {
         $params = Yii::$app->request->post();
         $oldPassword = $params['oldPassword'];
         $newPassword = $params['newPassword'];
         // validasi jika tidak kosong
         if (!empty($token) || empty($password)) {
-            // cari di database data email
             $user = User::findOne([
                 'status' => User::STATUS_ACTIVE,
                 'id' => \yii::$app->user->id,
             ]);
 
             if (!$user) {
-                // jika username tidak ada maka
                 Yii::$app->response->statusCode = 404;
                 $response = [
                     'status' => 'error',
-                    'user' => 'not found',
+                    'message' => 'NOT_FOUND',
                 ];
             } else {
                 if ($user->validatePassword($oldPassword)) {
@@ -183,20 +191,20 @@ class SiteController extends ActiveController
                     if ($user->save(false)) {
                         $response = [
                             'status' => 'success',
-                            'password' => 'change',
+                            'message' => 'PASSWORD_CHANGE',
                         ];
                     } else {
                         Yii::$app->response->statusCode = 404;
                         $response = [
                             'status' => 'error',
-                            'password' => 'change failed',
+                            'message' => 'FAILED_CHANGE_PASSWORD',
                         ];
                     }
                 } else {
                     Yii::$app->response->statusCode = 404;
                     $response = [
                         'status' => 'error',
-                        'password' => 'wrong password',
+                        'password' => 'WRONG_PASSWORD',
                     ];
                 }
             }
@@ -208,20 +216,17 @@ class SiteController extends ActiveController
     {
         $params = Yii::$app->request->post();
         $email = $params['email'];
-        // validasi jika tidak kosong
         if (!empty($email)) {
-            // cari di database data email
             $user = User::findOne([
                 'status' => User::STATUS_ACTIVE,
                 'email' => $email,
             ]);
 
             if (!$user) {
-                // jika username tidak ada maka
                 Yii::$app->response->statusCode = 404;
                 $response = [
                     'status' => 'error',
-                    'email' => 'not found',
+                    'message' => 'NOT_FOUND',
                 ];
                 return $response;
             }
@@ -230,7 +235,7 @@ class SiteController extends ActiveController
                 if (!$user->save(false)) {
                     $response = [
                         'status' => 'error',
-                        'email' => 'not save',
+                        'message' => 'NOT_SAVE',
                     ];
                     return $response;
                 }
@@ -240,39 +245,26 @@ class SiteController extends ActiveController
                 ['html' => 'passwordResetToken'],
                 ['user' => $user]
             )
-                ->setFrom('no_reply@clevercbt.com')
+                ->setFrom('no_reply@admin.com')
                 ->setTo($email)
                 ->setSubject('Password recovery');
 
             if ($message->send()) {
                 $response = [
                     'status' => 'success',
-                    'email' => 'send',
+                    'message' => 'EMAIL_SEND',
                 ];
             } else {
                 Yii::$app->response->statusCode = 404;
                 $response = [
                     'status' => 'error',
-                    'email' => 'not send',
+                    'email' => 'EMAIL_NOT_SEND',
                 ];
             }
 
         }
-
         return $response;
     }
 
-    protected function verbs()
-    {
 
-        return [
-            'index' => ['GET', 'HEAD', 'OPTIONS'], //instead of  'index' => ['GET', 'HEAD']
-            'login' => ['POST', 'OPTIONS'],
-            'register' => ['POST', 'OPTIONS'],
-            'reset-password' => ['POST', 'OPTIONS'],
-            'set-password' => ['POST', 'OPTIONS'],
-            'send-email-reset-password' => ['POST', 'OPTIONS'],
-        ];
-
-    }
 }
