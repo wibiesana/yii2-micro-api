@@ -75,13 +75,11 @@ class SiteController extends ActiveController
         if ($model->signup()) {
             $response['isSuccess'] = 201;
             $response['message'] = 'REGISTER_SUCCESS';
-//            $response['user'] = User::findByEmail($model->email);
             return $response;
         } else {
             Yii::$app->response->statusCode = 404;
             $response['hasErrors'] = $model->hasErrors();
             $response['errors'] = $model->getErrors();
-            //return = $model;
             return $response;
         }
     }
@@ -92,8 +90,8 @@ class SiteController extends ActiveController
         $username = $params['username'] ?? "";
         $password = $params['password'] ?? "";
 //        you can use email or username to login
-        $user = User::findByEmail($username);
-//        $user = User::findByUsername($username);
+//        $user = User::findByEmail($username);
+        $user = User::findByUsername($username);
         if (!empty($user)) {
             if ($user->validatePassword($password)) {
                 $response = [
@@ -105,14 +103,14 @@ class SiteController extends ActiveController
                 Yii::$app->response->statusCode = 404;
                 $response = [
                     'status' => 'error',
-                    'password' => 'PASSWORD_ERROR',
+                    'message' => 'WRONG_PASSWORD',
                 ];
             }
         } else {
             Yii::$app->response->statusCode = 404;
             $response = [
                 'status' => 'error',
-                'email' => 'USERNAME_NOT_FOUND',
+                'message' => 'USERNAME_NOT_FOUND',
             ];
         }
         return $response;
@@ -136,7 +134,7 @@ class SiteController extends ActiveController
                 Yii::$app->response->statusCode = 404;
                 $response = [
                     'status' => 'error',
-                    'email' => 'not found',
+                    'message' => 'NOT_FOUND',
                 ];
                 return $response;
             }
@@ -146,13 +144,13 @@ class SiteController extends ActiveController
             if ($user->save(false)) {
                 $response = [
                     'status' => 'success',
-                    'password' => 'change',
+                    'message' => 'PASSWORD_CHANGE',
                 ];
             } else {
                 Yii::$app->response->statusCode = 404;
                 $response = [
                     'status' => 'error',
-                    'password' => 'failed',
+                    'message' => 'FAILED_CHANGE_PASSWORD',
                 ];
             }
         }
