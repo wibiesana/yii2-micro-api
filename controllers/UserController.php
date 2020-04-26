@@ -2,18 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\LoginForm;
-use app\models\PasswordForm;
-use app\models\PasswordResetRequestForm;
-use app\models\ResetPasswordForm;
-use app\models\SignupForm;
-use Yii;
-use yii\base\InvalidArgumentException;
-use yii\helpers\Html;
 use yii\rest\ActiveController;
-use yii\web\BadRequestHttpException;
-use yii\web\Controller;
-use yii\web\Response;
+
 
 /**
  * user controller
@@ -23,59 +13,79 @@ class UserController extends ActiveController
     /**
      * @inheritdoc
      */
-    public $modelClass = 'micro\models\User';
+    public $modelClass = 'app\models\User';
+
+    //    delete default actions
+    public function actions()
+    {
+        $actions = parent::actions();
+        unset(
+            $actions['create'],
+            $actions['view'],
+            $actions['update'],
+            $actions['delete'],
+            $actions['index']
+        );
+        return $actions;
+    }
+
+    protected function verbs()
+
+    {
+
+        return [
+
+            'index' => ['GET', 'HEAD', 'OPTIONS'], //instead of  'index' => ['GET', 'HEAD']
+            'view' => ['GET', 'HEAD', 'OPTIONS'],
+            'create' => ['POST', 'OPTIONS'],
+            'update' => ['PUT', 'PATCH'],
+            'delete' => ['DELETE'],
+        ];
+
+    }
 
     public function behaviors()
     {
-        // remove rateLimiter which requires an authenticated user to work
         $behaviors = parent::behaviors();
-        unset($behaviors['rateLimiter']);
+        $auth = $behaviors['authenticator'];
+        unset($behaviors['authenticator']);
+        $behaviors['corsFilter'] = [
+            'class' => \yii\filters\Cors::className(),
+            'cors' => [
+                'Origin' => ['*'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+                'Access-Control-Request-Headers' => ['*'],
+                'Access-Control-Expose-Headers' => ['X-Pagination-Total-Count', 'X-Pagination-Page-Count', 'X-Pagination-Current-Page', 'X-Pagination-Per-Page'],
+            ],
+        ];
+
+        $behaviors['authenticator'] = $auth;
+        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator'] = [
+            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'except' => [
+            ]
+        ];
+
         return $behaviors;
     }
 
+
+//     example for search and sort
+//     u can access it by using http://localhost/yii2-micro-api/user?UserSearch[name]=hadi&sort=id
+//     note that u have to create UserSearch first u can do that by using gii crud
     /**
-     * Logs in a user.
+     * public function actions()
+     * {
+     * $actions = parent::actions();
+     * $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+     * return $actions;
+     * }
      *
-     * @return mixed
-     */
-
-    public function actionSignup()
-    {
-        $model = new \micro\models\SignupForm();
-        $params = Yii::$app->request->post();
-        $model->username = $params['username'];
-        $model->password = $params['password'];
-        $model->email = $params['email'];
-
-        if ($model->signup()) {
-            $response['isSuccess'] = 201;
-            $response['message'] = 'You are now a member!';
-            $response['user'] = \micro\models\User::findByUsername($model->username);
-            return $response;
-        } else {
-            //$model->validate();
-            $model->getErrors();
-            $response['hasErrors'] = $model->hasErrors();
-            $response['errors'] = $model->getErrors();
-            return $response;
-        }
-    }
-    public function actionLogin()
-    {
-        $model = new \micro\models\LoginForm();
-        $params = Yii::$app->request->post();
-        $model->username = $params['username'];
-        $model->password = $params['password'];
-        if ($model->login()) {
-            $data = \micro\models\User::findByUsername($model->username);
-            $response['message'] = 'You are now logged in!';
-            $response['token'] = $data;
-            //return [$response,$model];
-            return $response;
-        } else {
-            $model->validate();
-            $response['errors'] = $model->getErrors();
-            return $response;
-        }
-    }
+     * public function prepareDataProvider()
+     * {
+     * $searchModel = new \app\models\CbtStudentSearch();
+     * return $searchModel->search(\Yii::$app->request->queryParams);
+     * }
+     **/
 }
