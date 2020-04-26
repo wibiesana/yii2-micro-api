@@ -1,10 +1,3 @@
-# ----------------------------------------------------------------------
-# Adds some security for the Apache server configuration for use with
-# https://github.com/kartik-v/yii2-app-practical-b template.
-# @author Kartik Visweswaran <kartikv2@gmail.com>
-# @see http://demos.krajee.com/app-practical-b
-# ----------------------------------------------------------------------
-
 # "-Indexes" will have Apache block users from browsing folders without a default document
 # Usually you should leave this activated, because you shouldn't allow everybody to surf through
 # every folder on your server (which includes rather private places like CMS system folders).

@@ -5,8 +5,8 @@ namespace app\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\filters\RateLimitInterface;
 use yii\web\IdentityInterface;
-use \yii\filters\RateLimitInterface;
 
 /**
  * User model
@@ -41,55 +41,6 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
     public static function tableName()
     {
         return '{{%user}}';
-    }
-    public function fields()
-    {
-        return [
-            'auth_key',
-            'email',
-//            'profile' => function ($model) {
-//                return $model->profile;
-//            },
-        ];
-    }
-
-    public function getRateLimit($request, $action)
-    {
-        return [$this->rateLimit, 60];
-    }
-
-    public function loadAllowance($request, $action)
-    {
-        return [$this->allowance, $this->allowance_updated_at];
-    }
-
-    public function saveAllowance($request, $action, $allowance, $timestamp)
-    {
-        $this->allowance = $allowance;
-        $this->allowance_updated_at = $timestamp;
-        $this->save();
-    }
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            TimestampBehavior::className(),
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
-            ['role', 'default', 'value' => self::ROLE_USER],
-            ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]],
-        ];
     }
 
     /**
@@ -150,9 +101,71 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
             return false;
         }
 
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $timestamp = (int)substr($token, strrpos($token, '_') + 1);
         $expire = 3600;
         return $timestamp + $expire >= time();
+    }
+
+    /**
+     * Finds user by email
+     *
+     * @param string $email
+     * @return static|null
+     */
+    public static function findByEmail($email)
+    {
+        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    public function fields()
+    {
+        return [
+            'auth_key',
+            'email',
+//            'profile' => function ($model) {
+//                return $model->profile;
+//            },
+        ];
+    }
+
+    public function getRateLimit($request, $action)
+    {
+        return [$this->rateLimit, 60];
+    }
+
+    public function loadAllowance($request, $action)
+    {
+        return [$this->allowance, $this->allowance_updated_at];
+    }
+
+    public function saveAllowance($request, $action, $allowance, $timestamp)
+    {
+        $this->allowance = $allowance;
+        $this->allowance_updated_at = $timestamp;
+        $this->save();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::className(),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            ['role', 'default', 'value' => self::ROLE_USER],
+            ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]],
+        ];
     }
 
     /**
@@ -166,17 +179,17 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
     /**
      * @inheritdoc
      */
-    public function getAuthKey()
+    public function validateAuthKey($authKey)
     {
-        return $this->auth_key;
+        return $this->getAuthKey() === $authKey;
     }
 
     /**
      * @inheritdoc
      */
-    public function validateAuthKey($authKey)
+    public function getAuthKey()
     {
-        return $this->getAuthKey() === $authKey;
+        return $this->auth_key;
     }
 
     /**
@@ -222,17 +235,6 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
-    }
-
-    /**
-     * Finds user by email
-     *
-     * @param string $email
-     * @return static|null
-     */
-    public static function findByEmail($email)
-    {
-        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
     }
 
     public function getPassword()

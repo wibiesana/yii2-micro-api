@@ -60,7 +60,7 @@ class SignupForm extends Model
         $user->generateAuthKey();
 
         if ($user->save(false)) {
-            $profile = new Profile();
+            $profile = new \app\models\Profile();
             $profile->user_id = $user->id;
             $profile->name = $this->name;
             $profile->save(false);

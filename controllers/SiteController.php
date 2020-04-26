@@ -10,31 +10,6 @@ class SiteController extends ActiveController
 {
     public $modelClass = 'app\models\LoginForm';
 
-    public function actions()
-    {
-        $actions = parent::actions();
-        unset($actions['create']);
-        unset($actions['update']);
-        unset($actions['delete']);
-        unset($actions['view']);
-        unset($actions['index']);
-        return $actions;
-    }
-
-    protected function verbs()
-    {
-
-        return [
-            'index' => ['GET', 'HEAD', 'OPTIONS'], //instead of  'index' => ['GET', 'HEAD']
-            'login' => ['POST', 'OPTIONS'],
-            'register' => ['POST', 'OPTIONS'],
-            'reset-password' => ['POST', 'OPTIONS'],
-            'set-password' => ['POST', 'OPTIONS'],
-            'send-email-reset-password' => ['POST', 'OPTIONS'],
-        ];
-
-    }
-
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -63,6 +38,17 @@ class SiteController extends ActiveController
         ];
 
         return $behaviors;
+    }
+
+    public function actions()
+    {
+        $actions = parent::actions();
+        unset($actions['create']);
+        unset($actions['update']);
+        unset($actions['delete']);
+        unset($actions['view']);
+        unset($actions['index']);
+        return $actions;
     }
 
     /**
@@ -276,5 +262,19 @@ class SiteController extends ActiveController
         }
 
         return $response;
+    }
+
+    protected function verbs()
+    {
+
+        return [
+            'index' => ['GET', 'HEAD', 'OPTIONS'], //instead of  'index' => ['GET', 'HEAD']
+            'login' => ['POST', 'OPTIONS'],
+            'register' => ['POST', 'OPTIONS'],
+            'reset-password' => ['POST', 'OPTIONS'],
+            'set-password' => ['POST', 'OPTIONS'],
+            'send-email-reset-password' => ['POST', 'OPTIONS'],
+        ];
+
     }
 }
