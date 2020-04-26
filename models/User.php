@@ -122,9 +122,9 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
         return [
             'auth_key',
             'email',
-//            'profile' => function ($model) {
-//                return $model->profile;
-//            },
+            'profile' => function ($model) {
+                return $model->profile;
+            },
         ];
     }
 
@@ -242,8 +242,8 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
         return '';
     }
 
-//    public function getProfile()
-//    {
-//        return $this->hasOne(\app\models\Profile::className(), ['user_id' => 'id']);
-//    }
+    public function getProfile()
+    {
+        return $this->hasOne(\app\models\Profile::className(), ['user_id' => 'id']);
+    }
 }
