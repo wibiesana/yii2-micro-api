@@ -8,6 +8,6 @@ class SiteController extends Controller
 {
     public function actionIndex()
     {
-        return 'Hello wibie!';
+        return 'Hello admin!';
     }
 }
