@@ -1,6 +1,6 @@
 {
   "name": "wibiesana/yii2-micro-api",
-  "description": "Yii 2 Micro Project Template for api",
+  "description": "Yii2 Micro Project Template for REST API",
   "keywords": [
     "yii2",
     "framework",
