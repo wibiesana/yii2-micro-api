@@ -3,9 +3,7 @@ yii2 micro for rest api
 Using Yii as a Micro-framework
 Yii can be easily used without the features included in basic and advanced templates. 
 In other words, Yii is already a micro-framework. It is not required to have the directory structure provided by templates to work with Yii.<br>
-use composer<br>
-composer create-project --prefer-dist --stability=dev wibiesana/yii2-micro-api yii2-micro-api<br>
-or<br>
+
 download then run composer update<br>
 
 yii2-micro-api does not create database for you, you have to create yourself<br>
