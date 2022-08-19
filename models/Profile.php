@@ -38,7 +38,13 @@ class Profile extends \yii\db\ActiveRecord
             [['phone'], 'string', 'max' => 15],
             [['about'], 'string', 'max' => 255],
             [['pic'], 'string', 'max' => 100],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [
+                ['user_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => User::className(),
+                'targetAttribute' => ['user_id' => 'id'],
+            ],
         ];
     }
 

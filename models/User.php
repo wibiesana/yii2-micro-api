@@ -29,7 +29,6 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
     const ROLE_USER = 10;
     const ROLE_ADMIN = 20;
 
-
     public $rateLimit = 30;
 
     // public $allowance;
@@ -68,7 +67,10 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
      */
     public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne([
+            'username' => $username,
+            'status' => self::STATUS_ACTIVE,
+        ]);
     }
 
     /**
@@ -101,7 +103,7 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
             return false;
         }
 
-        $timestamp = (int)substr($token, strrpos($token, '_') + 1);
+        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
         $expire = 3600;
         return $timestamp + $expire >= time();
     }
@@ -114,7 +116,10 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
      */
     public static function findByEmail($email)
     {
-        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne([
+            'email' => $email,
+            'status' => self::STATUS_ACTIVE,
+        ]);
     }
 
     public function fields()
@@ -150,9 +155,7 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
      */
     public function behaviors()
     {
-        return [
-            TimestampBehavior::className(),
-        ];
+        return [TimestampBehavior::className()];
     }
 
     /**
@@ -162,7 +165,11 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
     {
         return [
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [
+                'status',
+                'in',
+                'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED],
+            ],
             ['role', 'default', 'value' => self::ROLE_USER],
             ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]],
         ];
@@ -200,7 +207,10 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
      */
     public function validatePassword($password)
     {
-        return Yii::$app->security->validatePassword($password, $this->password_hash);
+        return Yii::$app->security->validatePassword(
+            $password,
+            $this->password_hash
+        );
     }
 
     /**
@@ -210,7 +220,9 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
      */
     public function setPassword($password)
     {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        $this->password_hash = Yii::$app->security->generatePasswordHash(
+            $password
+        );
     }
 
     /**
@@ -226,7 +238,8 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
      */
     public function generatePasswordResetToken()
     {
-        $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
+        $this->password_reset_token =
+            Yii::$app->security->generateRandomString() . '_' . time();
     }
 
     /**
@@ -244,6 +257,8 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
 
     public function getProfile()
     {
-        return $this->hasOne(\app\models\Profile::className(), ['user_id' => 'id']);
+        return $this->hasOne(\app\models\Profile::className(), [
+            'user_id' => 'id',
+        ]);
     }
 }

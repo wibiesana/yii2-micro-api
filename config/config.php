@@ -57,9 +57,7 @@ $config = [
         //                        'encryption' => 'ssl',
         //     ],
         // ],
-
     ],
-
 ];
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
