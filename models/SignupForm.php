@@ -34,7 +34,7 @@ class SignupForm extends Model
                 'username',
                 'unique',
                 'targetClass' => '\app\models\User',
-                'message' => 'This username has already been taken.',
+                'message' => 'USERNAME_EXIST',
             ],
             ['username', 'string', 'min' => 2, 'max' => 20],
 
@@ -46,7 +46,7 @@ class SignupForm extends Model
                 'email',
                 'unique',
                 'targetClass' => '\app\models\User',
-                'message' => 'This email address has already been taken.',
+                'message' => 'EMAIL_ADDRESS_EXIST',
             ],
 
             ['password', 'required'],
