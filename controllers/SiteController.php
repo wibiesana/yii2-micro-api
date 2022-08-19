@@ -75,7 +75,7 @@ class SiteController extends ActiveController
         $params = Yii::$app->request->post();
         $model->name = $params['name'] ?? "";
         $model->email = $params['email'] ?? "";
-        $model->username = $params['email'] ?? "";
+        $model->username = $params['username'] ?? "";
         $model->password = $params['password'] ?? "";
         if (!$model->signup()) {
             Yii::$app->response->statusCode = 404;
@@ -94,33 +94,33 @@ class SiteController extends ActiveController
     public function actionLogin()
     {
         $params = Yii::$app->request->post();
-        $email = $params['email'] ?? "";
+        $username = $params['username'] ?? "";
         $password = $params['password'] ?? "";
         if (empty($email) || empty($password)) {
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'data' => 'DATA_ERROR',
+                'message' => 'DATA_EMPTY',
             ];
         }
-        $user = User::findByEmail($email);
+        $user = User::findByUsername($username);
         if (!$user) {
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'email' => 'EMAIL_ERROR',
+                'message' => 'USERNAME_NOT_FOUND',
             ];
         }
         if (!$user->validatePassword($password)) {
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'password' => 'PASSWORD_ERROR',
+                'message' => 'WRONG_PASSWORD',
             ];
         }
         return [
             'status' => 'success',
-            'message' => 'LOGIN_SUCCESS!',
+            'message' => 'LOGIN_SUCCESS',
             'data' => $user,
         ];
     }
@@ -134,7 +134,7 @@ class SiteController extends ActiveController
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'data' => 'DATA_ERROR',
+                'message' => 'DATA_ERROR',
             ];
         }
         $user = User::findOne([
@@ -145,7 +145,7 @@ class SiteController extends ActiveController
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'user' => 'NOT_FOUND',
+                'message' => 'USER_NOT_FOUND',
             ];
         }
         $user->setPassword($password);
@@ -154,12 +154,12 @@ class SiteController extends ActiveController
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'password' => 'FAIL_CHANGE_PASSWORD',
+                'message' => 'CHANGE_PASSWORD_FAILED',
             ];
         }
         return [
             'status' => 'success',
-            'password' => 'PASSWORD_CHANGE',
+            'message' => 'CHANGE_PASSWORD_SUCCESS',
         ];
     }
 
@@ -172,7 +172,7 @@ class SiteController extends ActiveController
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'data' => 'DATA_ERROR',
+                'message' => 'DATA_EMPTY',
             ];
         }
         $user = User::findOne([
@@ -183,14 +183,14 @@ class SiteController extends ActiveController
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'user' => 'NOT_FOUND',
+                'message' => 'USER_NOT_FOUND',
             ];
         }
         if (!$user->validatePassword($oldPassword)) {
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'password' => 'WRONG_PASSWORD',
+                'message' => 'WRONG_PASSWORD',
             ];
         }
         $user->setPassword($newPassword);
@@ -198,13 +198,13 @@ class SiteController extends ActiveController
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'password' => 'FAIL_CHANGE_PASSWORD',
+                'message' => 'CHANGE_PASSWORD_FAILED',
             ];
         }
 
         return [
             'status' => 'success',
-            'password' => 'PASSWORD_CHANGE',
+            'message' => 'CHANGE_PASSWORD_SUCCESS',
         ];
     }
 
@@ -216,7 +216,7 @@ class SiteController extends ActiveController
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'data' => 'DATA_ERROR',
+                'message' => 'DATA_EMPTY',
             ];
         }
         $user = User::findOne([
@@ -227,33 +227,33 @@ class SiteController extends ActiveController
             Yii::$app->response->statusCode = 404;
             return [
                 'status' => 'error',
-                'user' => 'NOT_FOUND',
+                'message' => 'EMAIL_NOT_FOUND',
             ];
         }
         $user->generatePasswordResetToken();
         if (!$user->save(false)) {
             return [
                 'status' => 'error',
-                'token' => 'TOKEN_NOT_SAVE',
+                'message' => 'TOKEN_NOT_SAVE',
             ];
         }
         $message = Yii::$app->mailer->compose(
             ['html' => 'passwordResetToken'],
             ['user' => $user]
         )
-            ->setFrom('no_reply@clevercbt.com')
+            ->setFrom('YOUR@EMAIL.COM')
             ->setTo($email)
             ->setSubject('Password recovery');
 
         if (!$message->send()) {
             return [
                 'status' => 'error',
-                'email' => 'NOT_SEND',
+                'message' => 'EMAIL_NOT_SEND',
             ];
         }
         return [
             'status' => 'success',
-            'email' => 'SEND',
+            'message' => 'SEND',
         ];
     }
 
