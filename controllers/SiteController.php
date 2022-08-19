@@ -180,6 +180,7 @@ class SiteController extends ActiveController
     }
 
     // SEND EMAIL REQUEST FOR CHANGE PASSWORD
+    // MAKE SURE TO EDIT YOUR CONFIG FILE FOR MAILER SECTION
     public function actionSendEmailResetPassword()
     {
         $params = Yii::$app->request->post();
