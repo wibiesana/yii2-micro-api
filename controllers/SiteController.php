@@ -134,7 +134,7 @@ class SiteController extends ActiveController
     }
 
     // CHANGE PASSWORD BY USER
-    public function actionSetPassword()
+    public function actionChangePassword()
     {
         $params = Yii::$app->request->post();
         $oldPassword = $params['oldPassword'] ?? '';
@@ -181,7 +181,7 @@ class SiteController extends ActiveController
 
     // SEND EMAIL REQUEST FOR CHANGE PASSWORD
     // MAKE SURE TO EDIT YOUR CONFIG FILE FOR MAILER SECTION
-    public function actionSendEmailResetPassword()
+    public function actionSendTokenResetPasswordByEmail()
     {
         $params = Yii::$app->request->post();
         $email = $params['email'] ?? '';
@@ -229,7 +229,7 @@ class SiteController extends ActiveController
     }
 
     // RESET PASSWORD FROM EMAIL BY actionSendEmailResetPassword
-    public function actionResetPassword()
+    public function actionResetPasswordByToken()
     {
         $params = Yii::$app->request->post();
         $token = $params['token'] ?? '';
@@ -273,9 +273,9 @@ class SiteController extends ActiveController
             'index' => ['GET', 'HEAD', 'OPTIONS'], //instead of  'index' => ['GET', 'HEAD']
             'login' => ['POST', 'OPTIONS'],
             'register' => ['POST', 'OPTIONS'],
-            'reset-password' => ['POST', 'OPTIONS'],
-            'set-password' => ['POST', 'OPTIONS'],
-            'send-email-reset-password' => ['POST', 'OPTIONS'],
+            'change-password' => ['POST', 'OPTIONS'],
+            'send-token-reset-password-by-email' => ['POST', 'OPTIONS'],
+            'reset-password-by-token' => ['POST', 'OPTIONS'],
         ];
     }
 }
