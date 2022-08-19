@@ -28,6 +28,7 @@ class SignupForm extends Model
                 },
             ],
 
+            ['username', 'trim'],
             ['username', 'required'],
             [
                 'username',
@@ -37,6 +38,7 @@ class SignupForm extends Model
             ],
             ['username', 'string', 'min' => 2, 'max' => 20],
 
+            ['email', 'trim'],
             ['email', 'required'],
             ['email', 'email'],
             ['email', 'string', 'max' => 50],
@@ -67,18 +69,19 @@ class SignupForm extends Model
         }
 
         $user = new User();
-        $user->username = \str_replace(' ', '', $this->username);
-        $user->email = \str_replace(' ', '', $this->email);
+        $user->username = $this->username;
+        $user->email = $this->email;
         $user->setPassword($this->password);
         $user->generateAuthKey();
 
-        if ($user->save(false)) {
-            $profile = new \app\models\Profile();
-            $profile->user_id = $user->id;
-            $profile->name = $this->name;
-            $profile->save(false);
-            return $user;
+        if (!$user->save(false)) {
+            return null;
         }
-        return null;
+
+        $profile = new \app\models\Profile();
+        $profile->user_id = $user->id;
+        $profile->name = $this->name;
+        $profile->save(false);
+        return $user;
     }
 }
