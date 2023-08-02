@@ -155,7 +155,7 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
      */
     public function behaviors()
     {
-        return [TimestampBehavior::className()];
+        return [TimestampBehavior::class];
     }
 
     /**
@@ -257,7 +257,7 @@ class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
 
     public function getProfile()
     {
-        return $this->hasOne(\app\models\Profile::className(), [
+        return $this->hasOne(\app\models\Profile::class, [
             'user_id' => 'id',
         ]);
     }

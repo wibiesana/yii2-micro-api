@@ -1,5 +1,6 @@
 <?php
 $db = require __DIR__ . '/db.php';
+$params = require __DIR__ . '/params.php';
 $config = [
     'id' => 'yii2-micro-api',
     // the basePath of the application will be the `micro-app` directory
@@ -13,6 +14,7 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm' => '@vendor/npm-asset',
     ],
+    'params' => $params,
     'components' => [
         'db' => $db,
         'cache' => [

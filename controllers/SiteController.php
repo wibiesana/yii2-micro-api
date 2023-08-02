@@ -26,29 +26,12 @@ class SiteController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        $auth = $behaviors['authenticator'];
-        unset($behaviors['authenticator']);
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
-            'cors' => [
-                'Origin' => ['*'],
-                'Access-Control-Request-Method' => [
-                    'GET',
-                    'POST',
-                    'PUT',
-                    'PATCH',
-                    'DELETE',
-                    'HEAD',
-                    'OPTIONS',
-                ],
-                'Access-Control-Request-Headers' => ['*'],
-            ],
+            'class' => Cors::class,
+            'cors' => \Yii::$app->params['corsOptions']
         ];
-
-        $behaviors['authenticator'] = $auth;
-        $behaviors['authenticator']['except'] = ['options'];
         $behaviors['authenticator'] = [
-            'class' => yii\filters\auth\HttpBearerAuth::className(),
+            'class' => yii\filters\auth\HttpBearerAuth::class,
             'except' => [
                 'login',
                 'register',
