@@ -9,11 +9,12 @@
   ],
   "type": "project",
   "license": "BSD-3-Clause",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "require": {
     "php": ">=7.3",
     "yiisoft/yii2": "~2.0.38",
-    "yiisoft/yii2-swiftmailer": "*"
+    "yiisoft/yii2-swiftmailer": "*",
+    "vlucas/phpdotenv": "^5.6"
   },
   "require-dev": {
     "yiisoft/yii2-debug": "^2.1",

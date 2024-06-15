@@ -47,29 +47,11 @@ class UserController extends ActiveController
     protected function verbs()
     {
         return [
-            'index' => ['GET', 'HEAD', 'OPTIONS'], //instead of  'index' => ['GET', 'HEAD']
+            'index' => ['GET', 'HEAD', 'OPTIONS'],
             'view' => ['GET', 'HEAD', 'OPTIONS'],
             'create' => ['POST', 'OPTIONS'],
-            'update' => ['PUT', 'PATCH'],
-            'delete' => ['DELETE'],
+            'update' => ['PUT', 'PATCH', 'OPTIONS'],
+            'delete' => ['DELETE', 'OPTIONS'],
         ];
     }
-
-    //     example for search and sort
-    //     u can access it by using http://localhost/yii2-micro-api/user?UserSearch[name]=hadi&sort=id
-    //     note that u have to create UserSearch first u can do that by using gii crud
-    /**
-     * public function actions()
-     * {
-     * $actions = parent::actions();
-     * $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-     * return $actions;
-     * }
-     *
-     * public function prepareDataProvider()
-     * {
-     * $searchModel = new \app\models\CbtStudentSearch();
-     * return $searchModel->search(\Yii::$app->request->queryParams);
-     * }
-     **/
 }

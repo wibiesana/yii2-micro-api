@@ -28,12 +28,13 @@ class SiteController extends ActiveController
         $behaviors = parent::behaviors();
         $behaviors['corsFilter'] = [
             'class' => Cors::class,
-            'cors' => \Yii::$app->params['corsOptions']
+            'cors' => \Yii::$app->params['corsOptions'],
         ];
         $behaviors['authenticator'] = [
             'class' => yii\filters\auth\HttpBearerAuth::class,
             'except' => [
                 'login',
+                'status',
                 'register',
                 'index',
                 'reset-password',
@@ -52,6 +53,23 @@ class SiteController extends ActiveController
     public function actionIndex()
     {
         return 'Welcome to yii2 micro api!';
+    }
+    /**
+     * status.
+     *
+     * @return mixed
+     */
+    public function actionStatus()
+    {
+        // Determine the current environment
+        $environment = YII_ENV;
+        $debugStatus = YII_DEBUG ? 'enabled' : 'disabled';
+
+        // Create the welcome message with environment details
+        $message = "Welcome to yii2 micro API! You are running in the '$environment' environment with debug mode $debugStatus.";
+
+        // Return the message
+        return $message;
     }
 
     /**
@@ -253,7 +271,8 @@ class SiteController extends ActiveController
     protected function verbs()
     {
         return [
-            'index' => ['GET', 'HEAD', 'OPTIONS'], //instead of  'index' => ['GET', 'HEAD']
+            'index' => ['GET', 'HEAD', 'OPTIONS'],
+            'status' => ['GET', 'HEAD', 'OPTIONS'],
             'login' => ['POST', 'OPTIONS'],
             'register' => ['POST', 'OPTIONS'],
             'change-password' => ['POST', 'OPTIONS'],

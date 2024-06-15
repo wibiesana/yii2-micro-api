@@ -17,6 +17,7 @@ use Yii;
  * @property User $user
  */
 class Profile extends \yii\db\ActiveRecord
+
 {
     /**
      * {@inheritdoc}
