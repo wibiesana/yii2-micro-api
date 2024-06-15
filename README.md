@@ -20,4 +20,7 @@ you can acces debug using http://localhost/yii2-micro-api/debug
 
 ![alt text](./toolbar.png)
 
+add .env suport
+see the .env file for config
+
 
