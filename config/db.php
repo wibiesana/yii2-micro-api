@@ -2,8 +2,8 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => getenv('DB_DSN'),
-    'username' => getenv('DB_USERNAME'),
-    'password' => getenv('DB_PASSWORD'),
+    'dsn' => $_ENV['DB_DSN'] ?? '',
+    'username' => $_ENV['DB_USERNAME'] ?? '',
+    'password' => $_ENV['DB_PASSWORD'] ?? '',
     'charset' => 'utf8',
 ];
