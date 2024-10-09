@@ -37,7 +37,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return YII_MESSAGE;  // Ensure YII_MESSAGE is properly defined
+        return "Welcom to YII Micro Rest APi";
     }
 
     /**
