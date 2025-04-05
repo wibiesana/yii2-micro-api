@@ -1,0 +1,1 @@
+repalce the file in giiant/src/generators/crud/default the run the gii and copy paste the result in controller/api to controller

@@ -50,7 +50,7 @@ class UserController extends ApiController
     {
         $actions = parent::actions();
         // Default actions remain intact (nothing is unset)
-        // You can uncomment lines below to disable specific actions
+        // You can comment lines below to enable specific actions
         unset(
             $actions['index'],
             $actions['view'],
