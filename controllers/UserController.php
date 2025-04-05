@@ -2,48 +2,70 @@
 
 namespace app\controllers;
 
-use yii\rest\ActiveController;
+use yii\filters\auth\HttpBearerAuth;
+use app\controllers\base\ApiController;
 
 /**
- * user controller
+ * UserController handles user resource actions.
  */
-class UserController extends ActiveController
+class UserController extends ApiController
 {
     /**
+     * The model class associated with this controller.
+     * Required by the ActiveController to perform CRUD.
+     *
      * @inheritdoc
      */
     public $modelClass = 'app\models\User';
 
-    //    delete default actions
-
-    public function behaviors()
+    /**
+     * Customizes the authenticator behavior.
+     * Only authenticated users can access all actions by default.
+     * Modify the 'except' array to allow anonymous access.
+     *
+     * @param array $defaultAuth
+     * @return array
+     */
+    protected function authenticatorBehavior($defaultAuth)
     {
-        $behaviors = parent::behaviors();
-        $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::class,
-            'cors' => \Yii::$app->params['corsOptions']
+        return [
+            'class' => HttpBearerAuth::class,
+            'except' => [
+                // Example: Uncomment actions below to allow public access
+                // 'index',
+                // 'view',
+                // 'create',
+                // 'update',
+                // 'delete',
+            ],
         ];
-        $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::class,
-            'except' => [],
-        ];
-
-        return $behaviors;
     }
 
+    /**
+     * Disables default CRUD actions from parent if custom logic needed.
+     *
+     * @return array
+     */
     public function actions()
     {
         $actions = parent::actions();
+        // Default actions remain intact (nothing is unset)
+        // You can uncomment lines below to disable specific actions
         unset(
-            $actions['create'],
+            $actions['index'],
             $actions['view'],
+            $actions['create'],
             $actions['update'],
-            $actions['delete'],
-            $actions['index']
+            $actions['delete']
         );
         return $actions;
     }
 
+    /**
+     * Specifies allowed HTTP methods for each action.
+     *
+     * @return array
+     */
     protected function verbs()
     {
         return [

@@ -5,31 +5,26 @@ namespace app\controllers;
 use app\models\SignupForm;
 use app\models\User;
 use yii;
-use yii\filters\Cors;
-use yii\web\Controller;
+use yii\filters\auth\HttpBearerAuth;
+use app\controllers\base\Controller;
 
 class SiteController extends Controller
 {
-    public function behaviors()
+    protected function authenticatorBehavior($defaultAuth)
     {
-        $behaviors = parent::behaviors();
-        // CORS filter
-        $behaviors['corsFilter'] = [
-            'class' => Cors::class,
-            'cors' => \Yii::$app->params['corsOptions'],
-        ];
-        // Authentication with exceptions
-        $behaviors['authenticator'] = [
-            'class' => yii\filters\auth\HttpBearerAuth::class,
+        return [
+            'class' => HttpBearerAuth::class,
             'except' => [
-                'login', 'status', 'register', 'index',
-                'reset-password', 'send-email-reset-password',
+                // uncomment below to allow anonymous access to view action
+                'login',
+                'status',
+                'register',
+                'index',
+                'reset-password',
+                'send-email-reset-password',
             ],
         ];
-
-        return $behaviors;
     }
-
     /**
      * Index action.
      *
