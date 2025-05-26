@@ -2,14 +2,14 @@
 
 namespace app\controllers;
 
+use app\controllers\base\ApiController;
 use app\models\SignupForm;
 use app\models\User;
 use yii;
-use app\controllers\base\Controller;
 
-class AuthController extends Controller
+class AuthController extends ApiController
 {
-
+    public $modelClass = '';
     public $except = [
         'login',
         'register',
