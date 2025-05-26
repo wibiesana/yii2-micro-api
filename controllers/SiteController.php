@@ -2,9 +2,6 @@
 
 namespace app\controllers;
 
-use app\models\SignupForm;
-use app\models\User;
-use yii;
 use app\controllers\base\Controller;
 
 class SiteController extends Controller
