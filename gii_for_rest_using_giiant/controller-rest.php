@@ -153,6 +153,8 @@ return $model;
 /**
 * List of HTTP request method
 */
+
+// Keep 'OPTIONS' to enable CORS preflight requests
 protected function verbs()
 {
 return [
