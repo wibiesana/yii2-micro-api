@@ -38,15 +38,20 @@ public $except = [
 public function actions()
 {
 $actions = parent::actions();
-// Default actions remain intact (nothing is unset)
+
+// By default, all actions from the parent controller are available.
+// To override any action, leave it in the unset() call below.
+// To keep a default action, simply remove it from the unset() list.
+// Delete any action you don't want to support in this controller.
+
 unset(
-// You can uncomment lines below to disable specific actions
 $actions['index'],
 $actions['create'],
 $actions['update'],
 $actions['delete'],
 $actions['view']
 );
+
 return $actions;
 }
 
