@@ -13,7 +13,6 @@ namespace <?= $generator->controllerNs ?>;
 */
 
 use Yii;
-use yii\filters\auth\HttpBearerAuth;
 use app\controllers\base\ApiController;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
@@ -26,30 +25,15 @@ public $serializer = [
 'class' => 'yii\rest\Serializer',
 'collectionEnvelope' => 'items',
 ];
-
-/**
-* Customizes the authenticator behavior.
-* Only authenticated users can access all actions by default.
-* Modify the 'except' array to allow anonymous access.
-*
-* @param array $defaultAuth
-* @return array
-*/
-protected function authenticatorBehavior($defaultAuth)
-{
-return [
-'class' => HttpBearerAuth::class,
-'except' => [
-// Example: Uncomment actions below to allow public access
+public $except = [
+// Uncomment any of the routes below to allow access without authentication
 // 'index',
 // 'paginate',
 // 'view',
 // 'create',
 // 'update',
-// 'delete',
-],
+// 'delete'
 ];
-}
 
 public function actions()
 {
@@ -73,7 +57,7 @@ public function actionIndex()
 {
 return $this->modelClass::find()
 ->orderBy('name ASC')
-->where(['is_active' => 1])
+//->where(['is_active' => 1])
 ->limit(5000)
 ->all();
 
@@ -86,7 +70,7 @@ public function actionPaginate()
 {
 $modelSearch = new $this->searchModel;
 $dataProvider = $modelSearch->search(Yii::$app->request->queryParams);
-$dataProvider->query->where(['is_active' => 1]);
+//$dataProvider->query->where(['is_active' => 1]);
 $dataProvider->query->orderBy('id DESC');
 $dataProvider->pagination->pageSize = 50;
 return $dataProvider;
@@ -94,7 +78,6 @@ return $dataProvider;
 
 /**
 * @param string $id
-*
 * @return mixed
 */
 public function actionView($id)
@@ -103,7 +86,6 @@ return $this->findModel($id, false);
 }
 
 /**
-* only admin can create this model.
 * @return mixed
 */
 public function actionCreate()
@@ -121,7 +103,6 @@ return $model;
 }
 
 /**
-* only admin can update this model.
 * @param string $id
 * @return mixed
 */

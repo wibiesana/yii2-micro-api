@@ -8,17 +8,16 @@ use yii\filters\auth\HttpBearerAuth;
 
 class Controller extends BaseController
 {
+    public $except =  [];
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
 
-        // Remove authenticator before re-adding it after CORS
-        if (isset($behaviors['authenticator'])) {
-            $auth = $behaviors['authenticator'];
-            unset($behaviors['authenticator']);
-        }
+        // Remove the existing authenticator
+        unset($behaviors['authenticator']);
 
-        // Add CORS filter
+        // CORS filter
         $behaviors['corsFilter'] = [
             'class' => Cors::class,
             'cors' => [
@@ -34,20 +33,12 @@ class Controller extends BaseController
             ],
         ];
 
-        // Restore authenticator with controller-specific settings
-        $behaviors['authenticator'] = $this->authenticatorBehavior($auth ?? null);
+        // Re-add authenticator, using controller's $except
+        $behaviors['authenticator'] = [
+            'class' => HttpBearerAuth::class,
+            'except' => array_merge(['options'], $this->except),
+        ];
 
         return $behaviors;
-    }
-
-    /**
-     * Allow child controllers to override authentication settings.
-     */
-    protected function authenticatorBehavior($defaultAuth)
-    {
-        return $defaultAuth ?? [
-            'class' => HttpBearerAuth::class,
-            'except' => [],
-        ];
     }
 }

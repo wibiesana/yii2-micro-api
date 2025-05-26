@@ -8,17 +8,16 @@ use yii\filters\auth\HttpBearerAuth;
 
 class ApiController extends ActiveController
 {
+    public $except =  [];
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
 
-        // Remove authenticator before re-adding it after CORS
-        if (isset($behaviors['authenticator'])) {
-            $auth = $behaviors['authenticator'];
-            unset($behaviors['authenticator']);
-        }
+        // Remove the existing authenticator
+        unset($behaviors['authenticator']);
 
-        // Add CORS filter
+        // CORS filter
         $behaviors['corsFilter'] = [
             'class' => Cors::class,
             'cors' => [
@@ -34,20 +33,45 @@ class ApiController extends ActiveController
             ],
         ];
 
-        // Restore authenticator with controller-specific settings
-        $behaviors['authenticator'] = $this->authenticatorBehavior($auth ?? null);
+        // Re-add authenticator, using controller's $except
+        $behaviors['authenticator'] = [
+            'class' => HttpBearerAuth::class,
+            'except' => array_merge(['options'], $this->except),
+        ];
 
         return $behaviors;
     }
 
     /**
-     * Allow child controllers to override authentication settings.
+     * Checks the privilege of the current user.
+     *
+     * This method should be overridden to check whether the current user has the privilege
+     * to run the specified action against the specified data model.
+     * If the user does not have access, a [[ForbiddenHttpException]] should be thrown.
+     *
+     * @param string $action the ID of the action to be executed
+     * @param Model $model the model to be accessed. If `null`, it means no specific model is being accessed.
+     * @param array $params additional parameters
+     * @throws ForbiddenHttpException if the user does not have access
      */
-    protected function authenticatorBehavior($defaultAuth)
+
+    public function checkAccess($action, $model = null, $params = [])
     {
-        return $defaultAuth ?? [
-            'class' => HttpBearerAuth::class,
-            'except' => [],
-        ];
+        $user = \Yii::$app->user;
+
+        // Allow all if admin
+        if ($user->identity && $user->identity->role == 30) {
+            return;
+        }
+
+        // Restrict update/delete to creator
+        if (in_array($action, ['update', 'delete'])) {
+            if ($model->created_by !== $user->id) {
+                throw new \yii\web\ForbiddenHttpException(sprintf(
+                    'You can only %s data that you\'ve created.',
+                    $action
+                ));
+            }
+        }
     }
 }
