@@ -35,7 +35,7 @@ public $except = [
 // 'delete'
 ];
 
-public function actions()
+public function actions(): array
 {
 $actions = parent::actions();
 
@@ -58,7 +58,7 @@ return $actions;
 /**
 * @return mixed
 */
-public function actionIndex()
+public function actionIndex(): array
 {
 return $this->modelClass::find()
 ->orderBy('name ASC')
@@ -71,7 +71,7 @@ return $this->modelClass::find()
 /**
 * @return mixed
 */
-public function actionPaginate()
+public function actionPaginate(): ActiveDataProvider
 {
 $modelSearch = new $this->searchModel;
 $dataProvider = $modelSearch->search(Yii::$app->request->queryParams);
@@ -85,7 +85,7 @@ return $dataProvider;
 * @param string $id
 * @return mixed
 */
-public function actionView($id)
+public function actionView($id): ActiveRecord
 {
 return $this->findModel($id, false);
 }
@@ -93,7 +93,7 @@ return $this->findModel($id, false);
 /**
 * @return mixed
 */
-public function actionCreate()
+public function actionCreate(): ActiveRecord|array
 {
 $model = new $this->modelClass();
 $model->load(Yii::$app->getRequest()->getBodyParams(), '');
@@ -111,7 +111,7 @@ return $model;
 * @param string $id
 * @return mixed
 */
-public function actionUpdate($id)
+public function actionUpdate($id): ActiveRecord|array
 {
 $model = $this->findModel($id);
 $model->load(Yii::$app->getRequest()->getBodyParams(), '');
@@ -129,7 +129,7 @@ return $model;
 * @param string $id
 * @return mixed
 */
-public function actionDelete($id)
+public function actionDelete($id): void
 {
 $model = $this->findModel($id);
 if ($model->delete() === false) {
@@ -143,7 +143,7 @@ Yii::$app->getResponse()->setStatusCode(204);
 * @param string $id
 * @throws HttpException if the model cannot be found
 */
-protected function findModel($id)
+protected function findModel($id): ActiveRecord
 {
 if (($model = $this->modelClass::findOne($id)) === null) {
 throw new HttpException(404, 'Data not Found');
@@ -154,8 +154,8 @@ return $model;
 * List of HTTP request method
 */
 
-// Keep 'OPTIONS' to enable CORS preflight requests
-protected function verbs()
+// Add 'OPTIONS' to enable CORS preflight requests
+protected function verbs(): array
 {
 return [
 'index' => ['GET', 'OPTIONS'],
