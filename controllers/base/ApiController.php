@@ -10,7 +10,7 @@ class ApiController extends ActiveController
 {
     public $except =  [];
 
-    public function behaviors()
+    public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
@@ -55,7 +55,7 @@ class ApiController extends ActiveController
      * @throws ForbiddenHttpException if the user does not have access
      */
 
-    public function checkAccess($action, $model = null, $params = [])
+    public function checkAccess($action, $model = null, $params = []): void
     {
         $user = \Yii::$app->user;
 

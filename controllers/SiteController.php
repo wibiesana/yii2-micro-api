@@ -2,16 +2,11 @@
 
 namespace app\controllers;
 
-use app\controllers\base\Controller;
+use yii\web\Controller;
 
 class SiteController extends Controller
 {
 
-    public $except = [
-        // Uncomment any of the routes below to allow access without authentication
-        'index',
-        'status',
-    ];
     /**
      * Index action.
      *

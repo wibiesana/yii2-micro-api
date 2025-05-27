@@ -19,7 +19,7 @@ use yii\web\ServerErrorHttpException;
 
 class <?= $controllerClassName ?> extends ApiController
 {
-public $modelClass = '<?= $generator->modelClass ?>';
+public $modelClass = <?= $modelClass ?>::class;
 public $searchModel = '<?= $generator->searchModelClass ?>';
 public $serializer = [
 'class' => 'yii\rest\Serializer',
