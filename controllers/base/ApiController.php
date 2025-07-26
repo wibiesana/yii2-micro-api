@@ -38,6 +38,22 @@ class ApiController extends ActiveController
      */
     public array $except = [];
 
+    /**
+     * Initializes controller configuration from global params if available.
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        $params = \Yii::$app->params;
+
+        $this->enableCors = $params['api.enableCors'] ?? $this->enableCors;
+        $this->bypassOwnershipCheck = $params['api.bypassOwnershipCheck'] ?? $this->bypassOwnershipCheck;
+        $this->ownershipProtectedActions = $params['api.ownershipProtectedActions'] ?? $this->ownershipProtectedActions;
+        $this->ownershipField = $params['api.ownershipField'] ?? $this->ownershipField;
+        $this->except = $params['api.except'] ?? $this->except;
+    }
+
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -82,22 +98,18 @@ class ApiController extends ActiveController
     {
         $user = \Yii::$app->user;
 
-        // Skip check if action is not in protected list
         if (!in_array($action, $this->ownershipProtectedActions, true)) {
             return;
         }
 
-        // Skip if check is bypassed
         if ($this->bypassOwnershipCheck) {
             return;
         }
 
-        // Admin bypass
         if (!$user->isGuest && $user->identity->role === 30) {
             return;
         }
 
-        // Enforce ownership
         if ($model && $model->{$this->ownershipField} !== $user->id) {
             throw new ForbiddenHttpException(sprintf(
                 'You can only %s data that you\'ve created.',
