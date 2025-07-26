@@ -28,7 +28,7 @@ public $serializer = [
 public $except = [
 // Uncomment any of the routes below to allow access without authentication
 // 'index',
-// 'paginate',
+// 'list-all',
 // 'view',
 // 'create',
 // 'update',
@@ -58,7 +58,7 @@ return $actions;
 /**
 * @return mixed
 */
-public function actionIndex(): array
+public function actionLiatAll(): array
 {
 return $this->modelClass::find()
 ->orderBy('name ASC')
@@ -71,7 +71,7 @@ return $this->modelClass::find()
 /**
 * @return mixed
 */
-public function actionPaginate(): ActiveDataProvider
+public function actionIndex(): ActiveDataProvider
 {
 $modelSearch = new $this->searchModel;
 $dataProvider = $modelSearch->search(Yii::$app->request->queryParams);
@@ -159,7 +159,7 @@ protected function verbs(): array
 {
 return [
 'index' => ['GET', 'OPTIONS'],
-'paginate' => ['GET', 'OPTIONS'],
+'list-all' => ['GET', 'OPTIONS'],
 'view' => ['GET', 'OPTIONS'],
 'create' => ['POST', 'OPTIONS'],
 'update' => ['PUT', 'OPTIONS'],
