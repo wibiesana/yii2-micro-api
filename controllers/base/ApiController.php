@@ -5,36 +5,62 @@ namespace app\controllers\base;
 use yii\rest\ActiveController;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\ForbiddenHttpException;
 
 class ApiController extends ActiveController
 {
-    public $except =  [];
-    public bool $allowAllUpdateDelete = true;
+    /**
+     * If true, enable CORS filter for this controller.
+     * If false, CORS headers will not be applied.
+     */
+    public bool $enableCors = true;
+
+    /**
+     * If true, skips ownership check for actions listed in $ownershipProtectedActions.
+     * If false, only the creator or admin can perform those actions.
+     */
+    public bool $bypassOwnershipCheck = true;
+
+    /**
+     * List of actions that require ownership check.
+     * Can be overridden in child controllers.
+     */
+    public array $ownershipProtectedActions = ['update', 'delete'];
+
+    /**
+     * Model attribute that holds the user ID who created the record.
+     * Used for ownership validation in access checks.
+     */
+    public string $ownershipField = 'created_by';
+
+    /**
+     * Actions that are excluded from authentication.
+     */
+    public array $except = [];
 
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
-        // Remove the existing authenticator
         unset($behaviors['authenticator']);
 
-        // CORS filter
-        $behaviors['corsFilter'] = [
-            'class' => Cors::class,
-            'cors' => [
-                'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Expose-Headers' => [
-                    'X-Pagination-Total-Count',
-                    'X-Pagination-Page-Count',
-                    'X-Pagination-Current-Page',
-                    'X-Pagination-Per-Page'
+        if ($this->enableCors) {
+            $behaviors['corsFilter'] = [
+                'class' => Cors::class,
+                'cors' => [
+                    'Origin' => ['*'],
+                    'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+                    'Access-Control-Request-Headers' => ['*'],
+                    'Access-Control-Expose-Headers' => [
+                        'X-Pagination-Total-Count',
+                        'X-Pagination-Page-Count',
+                        'X-Pagination-Current-Page',
+                        'X-Pagination-Per-Page',
+                    ],
                 ],
-            ],
-        ];
+            ];
+        }
 
-        // Re-add authenticator, using controller's $except
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::class,
             'except' => array_merge(['options'], $this->except),
@@ -44,40 +70,36 @@ class ApiController extends ActiveController
     }
 
     /**
-     * Checks the privilege of the current user.
+     * Checks access to a given action and model.
+     * Skips if action not protected, bypass is enabled, or user is admin.
      *
-     * This method should be overridden to check whether the current user has the privilege
-     * to run the specified action against the specified data model.
-     * If the user does not have access, a [[ForbiddenHttpException]] should be thrown.
-     *
-     * @param string $action the ID of the action to be executed
-     * @param Model $model the model to be accessed. If `null`, it means no specific model is being accessed.
-     * @param array $params additional parameters
-     * @throws ForbiddenHttpException if the user does not have access
+     * @param string $action
+     * @param \yii\db\ActiveRecord|null $model
+     * @param array $params
+     * @throws ForbiddenHttpException
      */
-
     public function checkAccess($action, $model = null, $params = []): void
     {
         $user = \Yii::$app->user;
 
-        // Skip check if action is not update/delete
-        if (!in_array($action, ['update', 'delete'])) {
+        // Skip check if action is not in protected list
+        if (!in_array($action, $this->ownershipProtectedActions, true)) {
             return;
         }
 
-        // Allow all if flag is set to true
-        if ($this->allowAllUpdateDelete) {
+        // Skip if check is bypassed
+        if ($this->bypassOwnershipCheck) {
             return;
         }
 
-        // Allow admin (role 30) regardless of ownership
+        // Admin bypass
         if (!$user->isGuest && $user->identity->role === 30) {
             return;
         }
 
-        // Restrict to only data created by user
-        if ($model && $model->created_by !== $user->id) {
-            throw new \yii\web\ForbiddenHttpException(sprintf(
+        // Enforce ownership
+        if ($model && $model->{$this->ownershipField} !== $user->id) {
+            throw new ForbiddenHttpException(sprintf(
                 'You can only %s data that you\'ve created.',
                 $action
             ));

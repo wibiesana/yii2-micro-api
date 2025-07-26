@@ -5,9 +5,6 @@ use yii\helpers\StringHelper;
 $modelClass = StringHelper::basename($generator->modelClass);
 $searchModelClass = StringHelper::basename($generator->searchModelClass) . 'Search';
 
-/**
- * Customizable controller class.
- */
 echo "<?php\n";
 ?>
 
@@ -28,6 +25,10 @@ use yii\db\ActiveRecord;
 
 class <?= $controllerClassName ?> extends ApiController
 {
+public bool $bypassOwnershipCheck = false;
+// public array $ownershipProtectedActions = ['update', 'delete'];
+// public string $ownershipField = 'created_by';
+
 public $modelClass = <?= $modelClass ?>::class;
 public $modelSearch = <?= $searchModelClass ?>::class;
 
@@ -61,12 +62,34 @@ return $actions;
 }
 
 /**
-* @return array
+* Returns up to 5000 records, filtered dynamically by query parameters.
+*
+* Example: ?name=alde&age=7 → WHERE name LIKE '%alde%' AND age = 7
+*
+* @return <?= $modelClass ?>[]
 */
 public function actionListAll(): array
 {
-return $this->modelClass::find()
-->orderBy('name ASC')
+$params = Yii::$app->request->get();
+$query = $this->modelClass::find();
+
+foreach ($params as $attribute => $value) {
+if ($value === '' || $value === null) {
+continue;
+}
+
+// Gunakan LIKE untuk kolom string, = untuk lainnya
+$columnType = $this->modelClass::getTableSchema()->getColumn($attribute)?->type;
+
+if ($columnType === 'string' || $columnType === 'text') {
+$query->andFilterWhere(['like', $attribute, $value]);
+} else {
+$query->andFilterWhere([$attribute => $value]);
+}
+}
+
+return $query
+->orderBy('id DESC')
 ->limit(5000)
 ->all();
 }
@@ -80,6 +103,7 @@ $modelSearch = new $this->modelSearch;
 $dataProvider = $modelSearch->search(Yii::$app->request->queryParams);
 $dataProvider->query->orderBy('id DESC');
 $dataProvider->pagination->pageSize = 50;
+
 return $dataProvider;
 }
 
@@ -139,7 +163,7 @@ public function actionDelete($id): void
 $model = $this->findModel($id);
 
 if ($model->delete() === false) {
-throw new ServerErrorHttpException('FAILED_TO_DELETE_DATA');
+throw new ServerErrorHttpException('ERROR_DELETE_FAILED');
 }
 
 Yii::$app->getResponse()->setStatusCode(204);
@@ -155,7 +179,7 @@ Yii::$app->getResponse()->setStatusCode(204);
 protected function findModel($id): ActiveRecord
 {
 if (($model = $this->modelClass::findOne($id)) === null) {
-throw new HttpException(404, 'Data not Found');
+throw new HttpException(404, 'DATA_NOT_FOUND');
 }
 
 return $model;
