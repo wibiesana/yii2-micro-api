@@ -9,6 +9,7 @@ use yii\filters\auth\HttpBearerAuth;
 class ApiController extends ActiveController
 {
     public $except =  [];
+    public bool $allowAllUpdateDelete = true;
 
     public function behaviors(): array
     {
@@ -59,19 +60,27 @@ class ApiController extends ActiveController
     {
         $user = \Yii::$app->user;
 
-        // Allow all if admin
-        if ($user->identity && $user->identity->role == 30) {
+        // Skip check if action is not update/delete
+        if (!in_array($action, ['update', 'delete'])) {
             return;
         }
 
-        // Restrict update/delete to creator
-        if (in_array($action, ['update', 'delete'])) {
-            if ($model->created_by !== $user->id) {
-                throw new \yii\web\ForbiddenHttpException(sprintf(
-                    'You can only %s data that you\'ve created.',
-                    $action
-                ));
-            }
+        // Allow all if flag is set to true
+        if ($this->allowAllUpdateDelete) {
+            return;
+        }
+
+        // Allow admin (role 30) regardless of ownership
+        if (!$user->isGuest && $user->identity->role === 30) {
+            return;
+        }
+
+        // Restrict to only data created by user
+        if ($model && $model->created_by !== $user->id) {
+            throw new \yii\web\ForbiddenHttpException(sprintf(
+                'You can only %s data that you\'ve created.',
+                $action
+            ));
         }
     }
 }

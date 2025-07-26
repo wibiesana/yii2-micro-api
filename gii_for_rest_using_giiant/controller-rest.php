@@ -1,5 +1,10 @@
 <?php
 
+use yii\helpers\StringHelper;
+
+$modelClass = StringHelper::basename($generator->modelClass);
+$searchModelClass = StringHelper::basename($generator->searchModelClass) . 'Search';
+
 /**
  * Customizable controller class.
  */
@@ -14,19 +19,24 @@ namespace <?= $generator->controllerNs ?>;
 
 use Yii;
 use app\controllers\base\ApiController;
+use <?= $generator->modelClass ?>;
+use <?= $generator->searchModelClass ?> as <?= $searchModelClass ?>;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
+use yii\data\ActiveDataProvider;
+use yii\db\ActiveRecord;
 
 class <?= $controllerClassName ?> extends ApiController
 {
 public $modelClass = <?= $modelClass ?>::class;
-public $searchModel = '<?= $generator->searchModelClass ?>';
+public $modelSearch = <?= $searchModelClass ?>::class;
+
 public $serializer = [
 'class' => 'yii\rest\Serializer',
 'collectionEnvelope' => 'items',
 ];
+
 public $except = [
-// Uncomment any of the routes below to allow access without authentication
 // 'index',
 // 'list-all',
 // 'view',
@@ -38,11 +48,6 @@ public $except = [
 public function actions(): array
 {
 $actions = parent::actions();
-
-// By default, all actions from the parent controller are available.
-// To override any action, leave it in the unset() call below.
-// To keep a default action, simply remove it from the unset() list.
-// Delete any action you don't want to support in this controller.
 
 unset(
 $actions['index'],
@@ -56,26 +61,23 @@ return $actions;
 }
 
 /**
-* @return mixed
+* @return array
 */
-public function actionLiatAll(): array
+public function actionListAll(): array
 {
 return $this->modelClass::find()
 ->orderBy('name ASC')
-//->where(['is_active' => 1])
 ->limit(5000)
 ->all();
-
 }
 
 /**
-* @return mixed
+* @return ActiveDataProvider
 */
 public function actionIndex(): ActiveDataProvider
 {
-$modelSearch = new $this->searchModel;
+$modelSearch = new $this->modelSearch;
 $dataProvider = $modelSearch->search(Yii::$app->request->queryParams);
-//$dataProvider->query->where(['is_active' => 1]);
 $dataProvider->query->orderBy('id DESC');
 $dataProvider->pagination->pageSize = 50;
 return $dataProvider;
@@ -83,20 +85,21 @@ return $dataProvider;
 
 /**
 * @param string $id
-* @return mixed
+* @return ActiveRecord
 */
 public function actionView($id): ActiveRecord
 {
-return $this->findModel($id, false);
+return $this->findModel($id);
 }
 
 /**
-* @return mixed
+* @return ActiveRecord|array
 */
 public function actionCreate(): ActiveRecord|array
 {
 $model = new $this->modelClass();
 $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
 if (!$model->save()) {
 Yii::$app->response->statusCode = 400;
 return [
@@ -104,17 +107,19 @@ return [
 'errors' => $model->getErrors(),
 ];
 }
+
 return $model;
 }
 
 /**
 * @param string $id
-* @return mixed
+* @return ActiveRecord|array
 */
 public function actionUpdate($id): ActiveRecord|array
 {
 $model = $this->findModel($id);
 $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+
 if (!$model->save()) {
 Yii::$app->response->statusCode = 400;
 return [
@@ -122,39 +127,43 @@ return [
 'errors' => $model->getErrors(),
 ];
 }
+
 return $model;
 }
 
 /**
 * @param string $id
-* @return mixed
 */
 public function actionDelete($id): void
 {
 $model = $this->findModel($id);
+
 if ($model->delete() === false) {
 throw new ServerErrorHttpException('FAILED_TO_DELETE_DATA');
 }
+
 Yii::$app->getResponse()->setStatusCode(204);
 }
 
 /**
-* If the model is not found, a 404 HTTP exception will be thrown.
+* Finds the model by ID or throws exception
+*
 * @param string $id
-* @throws HttpException if the model cannot be found
+* @return ActiveRecord
+* @throws HttpException if model not found
 */
 protected function findModel($id): ActiveRecord
 {
 if (($model = $this->modelClass::findOne($id)) === null) {
 throw new HttpException(404, 'Data not Found');
 }
+
 return $model;
 }
-/**
-* List of HTTP request method
-*/
 
-// Add 'OPTIONS' to enable CORS preflight requests
+/**
+* HTTP verbs for CORS support
+*/
 protected function verbs(): array
 {
 return [
