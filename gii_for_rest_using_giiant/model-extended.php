@@ -22,6 +22,9 @@ namespace <?= $generator->ns ?>;
 
 use yii\helpers\ArrayHelper;
 use <?= $generator->ns ?>\base\<?= $className ?> as Base<?= $className ?>;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 /**
 * This is the model class for table "<?= $tableName ?>".
@@ -34,6 +37,13 @@ return ArrayHelper::merge(
 parent::behaviors(),
 [
 // custom behaviors
+[
+'class' => BlameableBehavior::class,
+],
+[
+'class' => TimestampBehavior::class,
+'value' => new Expression('NOW()')
+],
 ]
 );
 }
@@ -50,35 +60,23 @@ parent::rules(),
 
 public function fields()
 {
-return [
-<?php foreach ($tableSchema->columns as $column): ?>
-    '<?= $column->name ?>',
-<?php endforeach; ?>
-
-<?php foreach ($tableSchema->columns as $column): ?>
-    <?php if (preg_match('/_id$/', $column->name)):
-        $relationName = StringHelper::basename(rtrim($column->name, '_id'));
-        $camelRelation = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $relationName))));
-    ?>
-        '<?= $column->name ?>_name' => function ($model) {
-        return $model-><?= $camelRelation ?>->name ?? null;
-        },
-    <?php endif; ?>
-<?php endforeach; ?>
+$fields = [
+<?= implode(",\n", array_map(fn($col) => "        '" . $col->name . "'", $tableSchema->columns)) ?>
+];
 
 <?php foreach ($relations as $name => $relation): ?>
-    <?php if (strpos($relation, 'hasOne(') !== false): ?>
-        '<?= $name ?>' => function ($model) {
-        if (!$model-><?= $name ?>) {
-        return null;
-        }
-        return [
-        'id' => $model-><?= $name ?>->id ?? null,
-        'name' => $model-><?= $name ?>->name ?? null,
-        ];
-        },
-    <?php endif; ?>
+    <?php $camelName = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $name)))); ?>
+    $fields['<?= $camelName ?>'] = function ($model) {
+    $rel = $model-><?= $camelName ?>;
+    return $rel ? [
+    'id' => $rel->id ?? null,
+    'name' => $rel->name ?? null,
+    ] : null;
+    };
 <?php endforeach; ?>
-];
+
+return $fields;
 }
+
+
 }
